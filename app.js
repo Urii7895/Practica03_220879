@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const moment = require('moment-timezone');  // Importa la librería moment-timezone
 
 const app = express();
 const PORT = 3000;
@@ -16,14 +17,40 @@ app.use(
 
 // Ruta para crear o inicializar una sesión
 app.get('/crear-sesion', (req, res) => {
-  req.session.usuario = { nombre: 'Juan', rol: 'admin' }; // Datos que deseas almacenar en la sesión
+  // Almacena la hora de creación de la sesión en la Ciudad de México
+  req.session.usuario = {
+    nombre: 'Juan',
+    rol: 'admin',
+    inicio: moment.tz('America/Mexico_City').valueOf(), // Hora de inicio de la sesión (en milisegundos)
+    ultimoAcceso: moment.tz('America/Mexico_City').valueOf() // Hora de último acceso (inicialmente la misma que el inicio)
+  };
   res.send('Sesión creada');
 });
 
-// Ruta para ver los datos de la sesión
-app.get('/ver-sesion', (req, res) => {
+// Ruta para ver los datos de la sesión y antigüedad
+app.get('/estado-sesion', (req, res) => {
   if (req.session.usuario) {
-    res.json(req.session.usuario);
+    const ahora = moment.tz('America/Mexico_City').valueOf(); // Hora actual
+    const inicio = req.session.usuario.inicio; // Hora de inicio de la sesión
+    const ultimoAcceso = req.session.usuario.ultimoAcceso; // Último acceso registrado
+    const antiguedadMs = ahora - inicio; // Antigüedad en milisegundos
+
+    // Calcular horas, minutos y segundos
+    const horas = Math.floor(antiguedadMs / (1000 * 60 * 60));
+    const minutos = Math.floor((antiguedadMs % (1000 * 60 * 60)) / (1000 * 60));
+    const segundos = Math.floor((antiguedadMs % (1000 * 60)) / 1000);
+
+    // Actualizar último acceso en la sesión
+    req.session.usuario.ultimoAcceso = ahora;
+
+    // Responder con un JSON que incluye los datos de la sesión y antigüedad
+    res.json({
+      mensaje: 'Información de la sesión',
+      sessionID: req.sessionID,
+      inicio: moment(inicio).format('YYYY-MM-DD HH:mm:ss'),
+      ultimoAcceso: moment(ultimoAcceso).format('YYYY-MM-DD HH:mm:ss'),
+      antiguedad: `${horas} horas, ${minutos} minutos, ${segundos} segundos`
+    });
   } else {
     res.send('No hay una sesión activa');
   }
