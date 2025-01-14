@@ -1,6 +1,6 @@
 const express = require('express');
 const session = require('express-session');
-const moment = require('moment-timezone');  // Importa la librería moment-timezone
+const moment = require('moment-timezone');  // Importamos  la librería moment-timezone para el tiempo 
 
 const app = express();
 const PORT = 3000;
@@ -19,8 +19,7 @@ app.use(
 app.get('/crear-sesion', (req, res) => {
   // Almacena la hora de creación de la sesión en la Ciudad de México
   req.session.usuario = {
-    nombre: 'Juan',
-    rol: 'admin',
+    nombre: 'Uriel',
     inicio: moment.tz('America/Mexico_City').valueOf(), // Hora de inicio de la sesión (en milisegundos)
     ultimoAcceso: moment.tz('America/Mexico_City').valueOf() // Hora de último acceso (inicialmente la misma que el inicio)
   };
@@ -45,7 +44,7 @@ app.get('/estado-sesion', (req, res) => {
 
     // Responder con un JSON que incluye los datos de la sesión y antigüedad
     res.json({
-      mensaje: 'Información de la sesión',
+      mensaje: 'uriel_220879',
       sessionID: req.sessionID,
       inicio: moment(inicio).format('YYYY-MM-DD HH:mm:ss'),
       ultimoAcceso: moment(ultimoAcceso).format('YYYY-MM-DD HH:mm:ss'),
@@ -79,5 +78,5 @@ app.get('/destruir-sesion', (req, res) => {
 
 // Iniciar el servidor
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en http://localhost:${3000}`);
 });
